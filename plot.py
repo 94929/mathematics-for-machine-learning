@@ -52,8 +52,8 @@ def gradient_descent(f, x, step_size):
 def plot_contour_2d(f, path, minima):
 
     # preparing the configuration values
-    xmin, xmax, xstep = -12.5, 12.5, .2
-    ymin, ymax, ystep = -12.5, 12.5, .2
+    xmin, xmax, xstep = -2.5, 2.5, .2
+    ymin, ymax, ystep = -2.5, 2.5, .2
     x, y = np.meshgrid(
                 np.arange(xmin, xmax + xstep, xstep), 
                 np.arange(ymin, ymax + ystep, ystep)
@@ -64,9 +64,9 @@ def plot_contour_2d(f, path, minima):
     # plotting methods
     fig, ax = plt.subplots(figsize=(10, 6))
 
-    ax.contour(x, y, z, 
-                levels=np.logspace(0, 5, 35), norm=LogNorm(), cmap=plt.cm.jet
-            )
+    lvls = np.logspace(-1, 3, 250)
+    print(lvls)
+    ax.contour(x, y, z, levels=lvls, norm=LogNorm(), cmap=plt.cm.jet)
     ax.quiver(path[0,:-1], path[1,:-1], 
             path[0,1:]-path[0,:-1], path[1,1:]-path[1,:-1], 
             scale_units='xy', angles='xy', scale=1, color='k')
@@ -82,13 +82,15 @@ def plot_contour_2d(f, path, minima):
 
 if __name__ == '__main__':
     # decide which function to use
-    f = f2
+    f = f3
 
     # obtain steps (i.e. path) by running the gradient descent algorithm
     path = gradient_descent(f, x=np.array([1, -1]), step_size=.1).T
+    print('path x1', path[0,:])
+    print('path x2', path[1,:])
 
     # set minima of the given function (should be obtained prior to plot)
-    minima = np.array([-0.42673399, -1.42673399])
+    minima = np.array([0.14086436, -0.82233133])
 
     # plot contour (2d)
     plot_contour_2d(f, path, minima)
