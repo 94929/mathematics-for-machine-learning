@@ -12,6 +12,11 @@ B = np.array([[3, -1], [-1, 3]])
 a = np.array([1, 0])
 b = np.array([0, -1])
 
+def f1(x):
+    x1, x2 = x
+    func = 4*x1**2 + 4*x2**2 - 2*x1*x2 -x1 -x2
+    return func
+
 def f2(x):
     x1, x2 = x
     func = np.sin(x1**2+x2**2-2*x1+1) + 3*x1**2+3*x2**2-2*x1*x2-2*x1+6*x2+3
@@ -19,7 +24,10 @@ def f2(x):
 
 def f3(x):
     x1, x2 = x
-    func = 1
+    term_1 = np.exp(-x1**2 -x2**2 +2*x1 -1)
+    term_2 = np.exp(-3*x1**2 -3*x2**2 +2*x1*x2 +2*x1 -6*x2 -3)
+    term_3 = 0.1*np.log(0.01*x1**2 + 0.01*x2**2 + 0.0001)
+    func = 1 - term_1 - term_2 + term_3
     return func
 
 def gradient_descent(f, x, step_size, nb_epochs):
@@ -42,26 +50,6 @@ def gradient_descent(f, x, step_size, nb_epochs):
 
     # return steps and function values for plotting
     return x1_gd, x2_gd, fx_gd
-
-def plot_contour_2d(f, x, y, z, x_gd, y_gd, z_gd):
-    fig1, ax1 = plt.subplots()
-    ax1.contour(x, y, z, levels=np.logspace(-3, 3, 25), cmap='jet')
-
-    # Plot target (the minimum of the function)
-    min_point = np.array([0., 0.])
-    min_point_ = min_point[:, np.newaxis]
-    ax1.plot(*min_point_, f(np.array([*min_point_])), 'r*', markersize=10, 
-            label='Gradient Descent for f2')
-    ax1.set_xlabel(r'x')
-    ax1.set_ylabel(r'y')
-
-    ax1.plot(x_gd, y_gd, 'bo')
-    for i in range(1, 50):
-        ax1.annotate('', xy=(x_gd[i], y_gd[i]), xytext=(x_gd[i-1], y_gd[i-1]),
-            arrowprops={'arrowstyle': '->', 'color': 'r', 'lw': 1},
-            va='center', ha='center')
-
-    plt.show()
 
 def plot_contour_3d(f, x, y, z, x_gd, y_gd, z_gd):
     fig1 = plt.figure()
@@ -112,18 +100,19 @@ def plot_contour_3d(f, x, y, z, x_gd, y_gd, z_gd):
         frames=len(x_gd), interval=120, repeat_delay=60, blit=True)
 
     plt.show()
-if __name__ == '__main__':
 
+if __name__ == '__main__':
     # decide which function to use
-    f = f2
+    f = f3
 
     # steps and corresponding function values after running gradient descent
     x_gd, y_gd, z_gd = gradient_descent(f, np.array([1, -1]), .1, 50)
 
     # plot contour for the output of the algorithm 
-    a = np.arange(-3, 3, 0.1)
-    b = np.arange(-3, 3, 0.1)
+    a = np.arange(-7.5, 7.5, .1)
+    b = np.arange(-7.5, 7.5, .1)
     x, y = np.meshgrid(a, b)
     z = f(np.array([x, y]))
     #plot_contour_2d(f, x, y, z, x_gd, y_gd, z_gd)
     plot_contour_3d(f, x, y, z, x_gd, y_gd, z_gd)
+
