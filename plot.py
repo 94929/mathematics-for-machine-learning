@@ -1,9 +1,8 @@
 
-import numpy as np
 import matplotlib.pyplot as plt
+import numpy as np
 
-from matplotlib import animation
-from mpl_toolkits.mplot3d import Axes3D
+from matplotlib.colors import LogNorm
 
 from answers import grad_f2
 from answers import grad_f3
@@ -30,89 +29,67 @@ def f3(x):
     func = 1 - term_1 - term_2 + term_3
     return func
 
-def gradient_descent(f, x, step_size, nb_epochs):
+def gradient_descent(f, x, step_size):
 
     # declare empty lists for steps and function values
-    x1_gd, x2_gd, fx_gd = [], [], []
+    x1s, x2s = [], []
 
     # use correct gradient function
     grad_f = grad_f2 if f == f2 else grad_f3
 
     # gradient descent algorithm 
-    for i in range(nb_epochs):
-        fx_gd.append(f(x))
+    for i in range(50):
 
         x1, x2 = x
-        x1_gd.append(x1)
-        x2_gd.append(x2)
+        x1s.append(x1)
+        x2s.append(x2)
 
         x = x - step_size * grad_f(x)
 
     # return steps and function values for plotting
-    return x1_gd, x2_gd, fx_gd
+    return np.column_stack((x1s, x2s))
 
-def plot_contour_3d(f, x, y, z, x_gd, y_gd, z_gd):
-    fig1 = plt.figure()
-    ax1 = Axes3D(fig1)
-    surf = ax1.plot_surface(x, y, z, edgecolor='none', rstride=1,
-                                    cstride=1, cmap='jet')
+def plot_contour_2d(f, path, minima):
 
-    # Plot target (the minimum of the function)
-    min_point = np.array([0., 0.])
-    min_point_ = min_point[:, np.newaxis]
-    ax1.plot(*min_point_, f(np.array([*min_point_])), 'r*', markersize=10)
+    # preparing the configuration values
+    xmin, xmax, xstep = -12.5, 12.5, .2
+    ymin, ymax, ystep = -12.5, 12.5, .2
+    x, y = np.meshgrid(
+                np.arange(xmin, xmax + xstep, xstep), 
+                np.arange(ymin, ymax + ystep, ystep)
+            )
+    z = f(np.array([x, y]))
+    minima_ = minima.reshape(-1, 1)
 
-    ax1.set_xlabel(r'$x$')
-    ax1.set_ylabel(r'$y$')
-    ax1.set_zlabel(r'$z$')
+    # plotting methods
+    fig, ax = plt.subplots(figsize=(10, 6))
 
-    # Create animation
-    line, = ax1.plot([], [], [], 'r-', label = 'Gradient descent', lw = 1.5)
-    point, = ax1.plot([], [], [], 'bo')
-    display_value = ax1.text(2., 2., 27.5, '', transform=ax1.transAxes)
+    ax.contour(x, y, z, 
+                levels=np.logspace(0, 5, 35), norm=LogNorm(), cmap=plt.cm.jet
+            )
+    ax.quiver(path[0,:-1], path[1,:-1], 
+            path[0,1:]-path[0,:-1], path[1,1:]-path[1,:-1], 
+            scale_units='xy', angles='xy', scale=1, color='k')
+    ax.plot(*minima_, 'r*', markersize=18)
 
-    def init():
-        line.set_data([], [])
-        line.set_3d_properties([])
-        point.set_data([], [])
-        point.set_3d_properties([])
-        display_value.set_text('')
+    ax.set_xlabel('$x$')
+    ax.set_ylabel('$y$')
 
-        return line, point, display_value
-
-    def animate(i):
-        # Animate line
-        line.set_data(x_gd[:i], y_gd[:i])
-        line.set_3d_properties(z_gd[:i])
-
-        # Animate points
-        point.set_data(x_gd[i], y_gd[i])
-        point.set_3d_properties(z_gd[i])
-
-        # Animate display value
-        display_value.set_text('Min = ' + str(z_gd[i]))
-
-        return line, point, display_value
-
-    ax1.legend(loc = 1)
-
-    anim = animation.FuncAnimation(fig1, animate, init_func=init,
-        frames=len(x_gd), interval=120, repeat_delay=60, blit=True)
+    ax.set_xlim((xmin, xmax))
+    ax.set_ylim((ymin, ymax))
 
     plt.show()
 
 if __name__ == '__main__':
     # decide which function to use
-    f = f3
+    f = f2
 
-    # steps and corresponding function values after running gradient descent
-    x_gd, y_gd, z_gd = gradient_descent(f, np.array([1, -1]), .1, 50)
+    # obtain steps (i.e. path) by running the gradient descent algorithm
+    path = gradient_descent(f, x=np.array([1, -1]), step_size=.1).T
 
-    # plot contour for the output of the algorithm 
-    a = np.arange(-7.5, 7.5, .1)
-    b = np.arange(-7.5, 7.5, .1)
-    x, y = np.meshgrid(a, b)
-    z = f(np.array([x, y]))
-    #plot_contour_2d(f, x, y, z, x_gd, y_gd, z_gd)
-    plot_contour_3d(f, x, y, z, x_gd, y_gd, z_gd)
+    # set minima of the given function (should be obtained prior to plot)
+    minima = np.array([-0.42673399, -1.42673399])
+
+    # plot contour (2d)
+    plot_contour_2d(f, path, minima)
 
