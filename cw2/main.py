@@ -30,15 +30,18 @@ def basis_func(x, degree, type):
     else:
         raise ValueError('basis type is invalid')
 
-def build_design_matrix(dataset, basis, degree):
-    return [basis(x, degree) for x in dataset]
+def build_design_matrix(dataset, basis, degree, type):
+    return np.asmatrix(np.array(
+            [basis_func(x, degree, type) for x in dataset]
+        ).reshape(len(dataset), -1))
 
+def find_optimal_parameters(dm, y):
+    return np.linalg.inv(dm.T*dm) * dm.T * y
 
 if __name__ == '__main__':
-    #design_matrix = build_design_matrix(X, basis_func, 0)
-    #print(design_matrix)
+    design_matrix = build_design_matrix(X, basis_func, degree=2, type='polynomial')
+    opt_theta = find_optimal_parameters(design_matrix, Y)
+    print(opt_theta)
 
-    a = basis_func(X[0], 2, 'polynomial')
-    print(a.shape)
     #plot_dataset(X, Y)
 
