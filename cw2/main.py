@@ -2,9 +2,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-N = 25
-X = np.reshape(np.linspace(0, 0.9, N), (N, 1))
-Y = np.cos(10*X**2) + 0.1*np.sin(100*X)
 
 def basis_func(x, degree, btype):
     if btype == 'poly':
@@ -28,9 +25,9 @@ def basis_func(x, degree, btype):
     else:
         raise ValueError('basis type is invalid')
 
-def build_design_matrix(dataset, basis, degree, btype):
+def build_design_matrix(dataset, degree, btype):
     return np.asmatrix(np.array(
-            [basis(x, degree, btype) for x in dataset]
+            [basis_func(x, degree, btype) for x in dataset]
         ).reshape(len(dataset), -1))
 
 def find_optimal_parameters(dm, y):
@@ -39,7 +36,7 @@ def find_optimal_parameters(dm, y):
 def plot_dataset(X, Y, degree, btype, xs, opt_theta):
 
     # main plotting algorithm
-    plt.plot(xs, basis_func(xs, degree, btype).astype(np.int).T*opt_theta)
+    plt.plot(xs, basis_func(xs, degree, btype).T*opt_theta)
 
     # PLT & UI
     plt.scatter(X, Y)
@@ -53,10 +50,20 @@ def plot_dataset(X, Y, degree, btype, xs, opt_theta):
     plt.show()
 
 if __name__ == '__main__':
-    # Build a design matrix 
-    design_matrix = build_design_matrix(X, basis=basis_func, degree=2, btype='poly')
+    # Generate dataset
+    N = 25
+    X = np.reshape(np.linspace(0, 0.9, N), (N, 1))
+    Y = np.cos(10*X**2) + 0.1*np.sin(100*X)
+
+    # Configure values
+    degree = 4
+    basis_type = 'poly'
+
+    # Build a design matrix then find optimal parameters
+    design_matrix = build_design_matrix(X, degree=degree, btype=basis_type)
     opt_theta = find_optimal_parameters(design_matrix, Y)
 
-    x_range = np.linspace(-0.3, 1.3, 500)
-    plot_dataset(X, Y, degree=2, btype='poly', xs=x_range, opt_theta=opt_theta)
+    # Plot
+    xrange = np.linspace(-0.3, 1.3, 300)
+    plot_dataset(X, Y, degree=degree, btype=basis_type, xs=xrange, opt_theta=opt_theta)
 
