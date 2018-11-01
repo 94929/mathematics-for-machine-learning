@@ -35,7 +35,7 @@ def find_optimal_parameters(dm, y):
 
 def plot_dataset(X, Y, degree, btype, xs, opt_theta):
 
-    # main plotting algorithm
+    # plotting f(x) = basis_func(x).T * opt_theta
     plt.plot(xs, basis_func(xs, degree, btype).T*opt_theta)
 
     # PLT & UI
@@ -47,6 +47,7 @@ def plot_dataset(X, Y, degree, btype, xs, opt_theta):
 
     axes = plt.gca()
     axes.set_xlim([-0.3, 1.3])
+    axes.set_ylim([-1.2, 2.0])
     plt.show()
 
 if __name__ == '__main__':
@@ -56,7 +57,7 @@ if __name__ == '__main__':
     Y = np.cos(10*X**2) + 0.1*np.sin(100*X)
 
     # Configure values
-    degree = 4
+    degree = 11
     basis_type = 'poly'
 
     # Build a design matrix then find optimal parameters
@@ -64,6 +65,6 @@ if __name__ == '__main__':
     opt_theta = find_optimal_parameters(design_matrix, Y)
 
     # Plot
-    xrange = np.linspace(-0.3, 1.3, 300)
+    xrange = np.linspace(-0.3, 1.3, 200)
     plot_dataset(X, Y, degree=degree, btype=basis_type, xs=xrange, opt_theta=opt_theta)
 
