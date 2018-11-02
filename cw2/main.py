@@ -52,6 +52,20 @@ def plot_dataset(X, Y, btype, xs, degrees, opt_thetas):
     plt.legend()
     plt.show()
 
+def calculate_mean_squared_error(N, X, Y, degree, btype, optimal_theta):
+
+    squared_errors = []
+    for i in range(N):
+        x_i = X[i]
+        y_i = Y[i]
+
+        estimated_y_i = basis_func(x_i, degree, btype).T*optimal_theta
+        error = np.asscalar(y_i) - np.asscalar(estimated_y_i)
+        squared_error = error**2
+        squared_errors.append(squared_error)
+
+    return sum(squared_errors) / N
+
 if __name__ == '__main__':
     # Generate dataset
     N = 25
@@ -59,14 +73,13 @@ if __name__ == '__main__':
     Y = np.cos(10*X**2) + 0.1*np.sin(100*X)
 
     # configure values
-    degs = [1, 11]
+    deg = 2
     btype = 'trigo'
 
     # design matrices and optimal thetas
-    dms = [build_design_matrix(X, deg, btype) for deg in degs]
-    ots = [find_optimal_parameters(dm, Y) for dm in dms]
+    dm = build_design_matrix(X, deg, btype)
+    ot = find_optimal_parameters(dm, Y) 
 
-    # Plot
-    xrange = np.linspace(-1, 1.2, 200)
-    plot_dataset(X, Y, btype=btype, xs=xrange, degrees=degs, opt_thetas=ots)
+    # Q1C, when degree is 0
+    print(calculate_mean_squared_error(N, X, Y, deg, btype, ot))
 
