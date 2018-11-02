@@ -10,7 +10,7 @@ def basis_func(x, degree, btype):
     elif btype == 'trigo':
         # Trigonometric of degree K with unit frequency
         res = (np.array([1]) + 
-                [np.sin(2*np.pi*i*x) if i%2==1 else np.cos(2*np.pi*i*x) 
+                [np.sin(np.pi*(i+1)*x) if i%2==1 else np.cos(np.pi*i*x) 
                     for i in range(1, 2*degree+1)]
             )
         return np.array(res, dtype=float)
@@ -47,7 +47,7 @@ def plot_dataset(X, Y, btype, xs, degrees, opt_thetas):
 
     axes = plt.gca()
     axes.set_xlim([-1, 1.2])
-    axes.set_ylim([-1.2, 20])
+    axes.set_ylim([-1.2, 2])
 
     plt.legend()
     plt.show()
