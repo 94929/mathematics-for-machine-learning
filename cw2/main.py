@@ -9,14 +9,12 @@ def basis_func(x, degree, btype):
         return np.array([x**i for i in range(degree+1)])
     elif btype == 'trigo':
         # Trigonometric of degree K with unit frequency
-        res = []
-        for i in range(2*degree+1):
-            if i % 2 == 1:
-                v = np.sin(2*np.pi*i*x)
-            else:
-                v = np.cos(2*np.pi*i*x)
-            res.append(v)
-        return res
+        return np.array(
+                    [
+                        np.sin(2*np.pi*i*x) if i%2==1 else np.cos(2*np.pi*i*x)
+                        for i in range(2*degree+1)
+                    ]
+                )
     elif btype == 'gauss':
         # Gaussian with scale l and means mu_j
         # TODO know where to retrieve the scale l and means mu_j
@@ -38,7 +36,7 @@ def plot_dataset(X, Y, btype, xs, degrees, opt_thetas):
     colors = ['red', 'blue', 'green', 'cyan', 'magenta']
     for i, degree in enumerate(degrees):
         plt.plot(xs, basis_func(xs, degree, btype).T*opt_thetas[i], 
-                color=colors[i], label='K='+str(i+1))
+                color=colors[i], label='K='+str(degree))
 
     # PLT & UI
     plt.scatter(X, Y)
@@ -48,8 +46,8 @@ def plot_dataset(X, Y, btype, xs, degrees, opt_thetas):
     plt.title('A Regression Dataset')
 
     axes = plt.gca()
-    axes.set_xlim([-0.3, 1.3])
-    axes.set_ylim([-1.2, 2.0])
+    axes.set_xlim([-1, 1.2])
+    axes.set_ylim([-1.2, 20])
 
     plt.legend()
     plt.show()
@@ -61,14 +59,14 @@ if __name__ == '__main__':
     Y = np.cos(10*X**2) + 0.1*np.sin(100*X)
 
     # configure values
-    degs = [0, 1, 2, 3, 11]
-    btype = 'poly'
+    degs = [1, 11]
+    btype = 'trigo'
 
     # design matrices and optimal thetas
     dms = [build_design_matrix(X, deg, btype) for deg in degs]
     ots = [find_optimal_parameters(dm, Y) for dm in dms]
 
     # Plot
-    xrange = np.linspace(-0.3, 1.3, 200)
+    xrange = np.linspace(-1, 1.2, 200)
     plot_dataset(X, Y, btype=btype, xs=xrange, degrees=degs, opt_thetas=ots)
 
