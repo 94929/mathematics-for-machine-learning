@@ -9,12 +9,11 @@ def basis_func(x, degree, btype):
         return np.array([x**i for i in range(degree+1)])
     elif btype == 'trigo':
         # Trigonometric of degree K with unit frequency
-        return np.array(
-                    [
-                        np.sin(2*np.pi*i*x) if i%2==1 else np.cos(2*np.pi*i*x)
-                        for i in range(2*degree+1)
-                    ]
-                )
+        res = (np.array([1]) + 
+                [np.sin(2*np.pi*i*x) if i%2==1 else np.cos(2*np.pi*i*x) 
+                    for i in range(1, 2*degree+1)]
+            )
+        return np.array(res, dtype=float)
     elif btype == 'gauss':
         # Gaussian with scale l and means mu_j
         # TODO know where to retrieve the scale l and means mu_j
@@ -33,6 +32,7 @@ def find_optimal_parameters(dm, y):
 
 def plot_dataset(X, Y, btype, xs, degrees, opt_thetas):
 
+    # TODO create a list of infinite number of colors (i.e. generator)
     colors = ['red', 'blue', 'green', 'cyan', 'magenta']
     for i, degree in enumerate(degrees):
         plt.plot(xs, basis_func(xs, degree, btype).T*opt_thetas[i], 
