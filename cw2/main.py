@@ -49,8 +49,8 @@ def find_squared_losses(N, X, Y, degree, btype):
     # init leave-one-out validator
     loo = LeaveOneOut()
     nb_splits = loo.get_n_splits(X)
-    print('nb_splits:', nb_splits)
 
+    # run leave-one-out validation to calculate the losses
     squared_losses_train = []
     squared_losses_test = []
     for train_index, test_index in loo.split(X):
@@ -78,20 +78,47 @@ def find_squared_losses(N, X, Y, degree, btype):
 
     return mean_squared_loss_train, mean_squared_loss_test
 
-if __name__ == '__main__':
-    # generate dataset
-    N = 25
-    X = np.reshape(np.linspace(0, 0.9, N), (N, 1))
-    Y = np.cos(10*X**2) + 0.1*np.sin(100*X)
+def get_errors(N, X, Y, degrees):
 
-    for degree in list(range(11)):
-        print('for degree: ', degree)
+    train_errors = []
+    test_errors = []
+    for degree in degrees:
 
         # find mean squared loss for train and test set for a given degree K
         mean_squared_loss_train, mean_squared_loss_test = (
                     find_squared_losses(N, X, Y, degree=degree, btype='trigo')
                 )
 
-        # print the result
-        print(mean_squared_loss_train, mean_squared_loss_test)
+        # store losses for plotting
+        train_errors.append(mean_squared_loss_train)
+        test_errors.append(mean_squared_loss_test)
+
+    return train_errors, test_errors
+
+def plot_errors(degrees, e_train, e_test):
+    """ plot the result for q1c """
+    plt.plot(degrees, e_train, color='red')
+    plt.plot(degrees, e_test, color='blue')
+
+    plt.legend(['Training error', 'Test error'], loc='upper left')
+    plt.xlabel('Degree of trigonometric basis')
+    plt.ylabel('Mean squared error')
+    plt.title('Training and test error')
+
+    plt.show()
+
+if __name__ == '__main__':
+    # generate dataset
+    N = 25
+    X = np.reshape(np.linspace(0, 0.9, N), (N, 1))
+    Y = np.cos(10*X**2) + 0.1*np.sin(100*X)
+
+    # configure degrees to iterate
+    degrees = list(range(11))
+
+    # obtain errors after running leave one out validation
+    e_train, e_test = get_errors(N, X, Y, degrees)
+
+    # plot the result
+    plot_errors(degrees, e_train, e_test)
 
