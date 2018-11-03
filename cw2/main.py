@@ -51,19 +51,11 @@ def find_squared_losses(N, X, Y, degree, btype):
     nb_splits = loo.get_n_splits(X)
 
     # run leave-one-out validation to calculate the losses
-    squared_losses_train = []
     squared_losses_test = []
     for train_index, test_index in loo.split(X):
         # prepare train and test sets
         X_train, X_test = X[train_index], X[test_index]
         y_train, y_test = Y[train_index], Y[test_index]
-
-        # find squared loss for train set
-        dm_train = build_design_matrix(X_train, degree, btype)
-        ot_train = find_optimal_parameters(dm_train, y_train)
-        squared_loss_train = calculate_squared_loss(y_train, dm_train, ot_train)
-        squared_loss_train_scalar = np.asscalar(squared_loss_train)
-        squared_losses_train.append(squared_loss_train_scalar)
 
         # find squared loss for test set
         dm_test = build_design_matrix(X_test, degree, btype)
@@ -73,37 +65,33 @@ def find_squared_losses(N, X, Y, degree, btype):
         squared_losses_test.append(squared_loss_test_scalar)
 
     # calculate mean values
-    mean_squared_loss_train = sum(squared_losses_train) / nb_splits
     mean_squared_loss_test = sum(squared_losses_test) / nb_splits
 
-    return mean_squared_loss_train, mean_squared_loss_test
+    return None, mean_squared_loss_test
 
 def get_errors(N, X, Y, degrees):
 
-    train_errors = []
     test_errors = []
     for degree in degrees:
 
         # find mean squared loss for train and test set for a given degree K
-        mean_squared_loss_train, mean_squared_loss_test = (
+        _, mean_squared_loss_test = (
                     find_squared_losses(N, X, Y, degree=degree, btype='trigo')
                 )
 
         # store losses for plotting
-        train_errors.append(mean_squared_loss_train)
         test_errors.append(mean_squared_loss_test)
 
-    return train_errors, test_errors
+    return None, test_errors
 
 def plot_errors(degrees, e_train, e_test):
     """ plot the result for q1c """
-    plt.plot(degrees, e_train, color='red')
     plt.plot(degrees, e_test, color='blue')
 
-    plt.legend(['Training error', 'Test error'], loc='upper left')
+    plt.legend(['Test error'], loc='upper left')
     plt.xlabel('Degree of trigonometric basis')
     plt.ylabel('Mean squared error')
-    plt.title('Training and test error')
+    plt.title('Test error')
 
     plt.show()
 
@@ -117,8 +105,8 @@ if __name__ == '__main__':
     degrees = list(range(11))
 
     # obtain errors after running leave one out validation
-    e_train, e_test = get_errors(N, X, Y, degrees)
+    _, e_test = get_errors(N, X, Y, degrees)
 
     # plot the result
-    plot_errors(degrees, e_train, e_test)
+    plot_errors(degrees, None, e_test)
 
