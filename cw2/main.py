@@ -40,7 +40,7 @@ def calculate_squared_loss(Y, design_matrix, optimal_theta):
     return (Y-design_matrix*optimal_theta).T * (Y-design_matrix*optimal_theta)
 
 def find_squared_losses(N, X, Y, degree, btype):
-    """ returns squared losses for both train and test """
+    """ returns squared losses for both train and test when loo is performed """
 
     # design matrix and optimal parameters
     dm = build_design_matrix(X, degree, btype)
@@ -78,39 +78,20 @@ def find_squared_losses(N, X, Y, degree, btype):
 
     return mean_squared_loss_train, mean_squared_loss_test
 
-def plot_dataset(X, Y, btype, xs, degrees, opt_thetas):
-
-    # TODO create a list of infinite number of colors (i.e. generator)
-    colors = ['red', 'blue', 'green', 'cyan', 'magenta']
-    for i, degree in enumerate(degrees):
-        plt.plot(xs, basis_func(xs, degree, btype).T*opt_thetas[i], 
-                color=colors[i], label='K='+str(degree))
-
-    # PLT & UI
-    plt.scatter(X, Y)
-
-    plt.xlabel('x')
-    plt.ylabel('f(x)')
-    plt.title('A Regression Dataset')
-
-    axes = plt.gca()
-    axes.set_xlim([-1, 1.2])
-    axes.set_ylim([-1.2, 2])
-
-    plt.legend()
-    plt.show()
-
 if __name__ == '__main__':
     # generate dataset
     N = 25
     X = np.reshape(np.linspace(0, 0.9, N), (N, 1))
     Y = np.cos(10*X**2) + 0.1*np.sin(100*X)
 
-    # find mean squared loss for train and test set for a given degree K
-    mean_squared_loss_train, mean_squared_loss_test = (
-                find_squared_losses(N, X, Y, degree=1, btype='trigo')
-            )
+    for degree in list(range(11)):
+        print('for degree: ', degree)
 
-    # print the result
-    print(mean_squared_loss_train, mean_squared_loss_test)
+        # find mean squared loss for train and test set for a given degree K
+        mean_squared_loss_train, mean_squared_loss_test = (
+                    find_squared_losses(N, X, Y, degree=degree, btype='trigo')
+                )
+
+        # print the result
+        print(mean_squared_loss_train, mean_squared_loss_test)
 
