@@ -67,31 +67,43 @@ def find_squared_losses(N, X, Y, degree, btype):
     # calculate mean values
     mean_squared_loss_test = sum(squared_losses_test) / nb_splits
 
-    return None, mean_squared_loss_test
+    # find maximum likelihood for variance for the whole dataset
+    dm = build_design_matrix(X, degree, btype)
+    ot = find_optimal_parameters(dm, Y)
+    squared_loss_mle_var = calculate_squared_loss(Y, dm, ot)
+    squared_loss_mle_var_scalar = np.asscalar(squared_loss_mle_var)
+
+    return mean_squared_loss_test, squared_loss_mle_var_scalar
 
 def get_errors(N, X, Y, degrees):
 
     test_errors = []
+    mle_vars = []
     for degree in degrees:
-
+        
         # find mean squared loss for train and test set for a given degree K
-        _, mean_squared_loss_test = (
+        mean_squared_loss_test, mle_var = (
                     find_squared_losses(N, X, Y, degree=degree, btype='trigo')
                 )
 
         # store losses for plotting
         test_errors.append(mean_squared_loss_test)
+        mle_vars.append(mle_var)
 
-    return None, test_errors
+    return test_errors, mle_vars
 
-def plot_errors(degrees, e_train, e_test):
+def plot_errors(degrees, e_test, mle_var):
     """ plot the result for q1c """
     plt.plot(degrees, e_test, color='blue')
+    plt.plot(degrees, mle_var, color='red')
 
-    plt.legend(['Test error'], loc='upper left')
+    plt.legend(['Test error', 'ML for variance'], loc='upper left')
     plt.xlabel('Degree of trigonometric basis')
     plt.ylabel('Mean squared error')
     plt.title('Test error')
+
+    axes = plt.gca()
+    axes.set_ylim([0, 20])
 
     plt.show()
 
@@ -105,8 +117,8 @@ if __name__ == '__main__':
     degrees = list(range(11))
 
     # obtain errors after running leave one out validation
-    _, e_test = get_errors(N, X, Y, degrees)
+    e_test, mle_var = get_errors(N, X, Y, degrees)
 
     # plot the result
-    plot_errors(degrees, None, e_test)
+    plot_errors(degrees, e_test, mle_var)
 
