@@ -55,19 +55,8 @@ def plot_dataset(X, Y, btype, xs, degrees, opt_thetas):
     plt.legend()
     plt.show()
 
-def calculate_mean_squared_error(N, X, Y, degree, btype, optimal_theta):
-
-    squared_errors = []
-    for i in range(N):
-        x_i = X[i]
-        y_i = Y[i]
-
-        estimated_y_i = basis_func(x_i, degree, btype).T*optimal_theta
-        error = np.asscalar(y_i) - np.asscalar(estimated_y_i)
-        squared_error = error**2
-        squared_errors.append(squared_error)
-
-    return sum(squared_errors) / N
+def calculate_squared_error_loss(Y, design_matrix, optimal_theta):
+    return (Y-design_matrix*optimal_theta).T * (Y-design_matrix*optimal_theta)
 
 if __name__ == '__main__':
     # Generate dataset
@@ -84,7 +73,7 @@ if __name__ == '__main__':
     ot = find_optimal_parameters(dm, Y) 
 
     # Q1C, when degree is 0
-    print(calculate_mean_squared_error(N, X, Y, deg, btype, ot))
+    print(calculate_squared_error_loss(Y, dm, ot))
     
     loo = LeaveOneOut()
     nb_splits = loo.get_n_splits(X)
