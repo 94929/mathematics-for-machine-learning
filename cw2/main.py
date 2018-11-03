@@ -1,6 +1,9 @@
+#!/Users/jha/miniconda3/bin/python3.6
 
 import numpy as np
 import matplotlib.pyplot as plt
+
+from sklearn.model_selection import LeaveOneOut
 
 
 def basis_func(x, degree, btype):
@@ -82,4 +85,17 @@ if __name__ == '__main__':
 
     # Q1C, when degree is 0
     print(calculate_mean_squared_error(N, X, Y, deg, btype, ot))
+    
+    loo = LeaveOneOut()
+    nb_splits = loo.get_n_splits(X)
+    print('nb_splits:', nb_splits)
+
+    for train_index, test_index in loo.split(X):
+        print("TRAIN:", train_index, "TEST:", test_index)
+        X_train, X_test = X[train_index], X[test_index]
+        y_train, y_test = Y[train_index], Y[test_index]
+        print('X_train: {}, X_test: {}, y_train: {}, y_test: {}'.format(
+                X_train, X_test, y_train, y_test)
+            )
+        break
 
