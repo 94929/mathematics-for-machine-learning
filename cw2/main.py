@@ -1,4 +1,3 @@
-#!/Users/jha/miniconda3/bin/python3.6
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -31,7 +30,53 @@ def build_design_matrix(dataset, degree, btype):
         ).reshape(len(dataset), -1))
 
 def find_optimal_parameters(dm, y):
-    return np.linalg.inv(dm.T*dm) * dm.T * y
+    try:
+        return np.linalg.inv(dm.T*dm) * dm.T * y
+    except np.linalg.linalg.LinAlgError:
+        # make the singular matrix (dm.T*dm) non-singular
+        return np.linalg.inv((dm.T*dm) + (np.eye(dm.shape[1])*1e-10)) * dm.T * y
+
+def calculate_squared_loss(Y, design_matrix, optimal_theta):
+    return (Y-design_matrix*optimal_theta).T * (Y-design_matrix*optimal_theta)
+
+def find_squared_losses(N, X, Y, degree, btype):
+    """ returns squared losses for both train and test """
+
+    # design matrix and optimal parameters
+    dm = build_design_matrix(X, degree, btype)
+    ot = find_optimal_parameters(dm, Y) 
+
+    # init leave-one-out validator
+    loo = LeaveOneOut()
+    nb_splits = loo.get_n_splits(X)
+    print('nb_splits:', nb_splits)
+
+    squared_losses_train = []
+    squared_losses_test = []
+    for train_index, test_index in loo.split(X):
+        # prepare train and test sets
+        X_train, X_test = X[train_index], X[test_index]
+        y_train, y_test = Y[train_index], Y[test_index]
+
+        # find squared loss for train set
+        dm_train = build_design_matrix(X_train, degree, btype)
+        ot_train = find_optimal_parameters(dm_train, y_train)
+        squared_loss_train = calculate_squared_loss(y_train, dm_train, ot_train)
+        squared_loss_train_scalar = np.asscalar(squared_loss_train)
+        squared_losses_train.append(squared_loss_train_scalar)
+
+        # find squared loss for test set
+        dm_test = build_design_matrix(X_test, degree, btype)
+        ot_test = find_optimal_parameters(dm_test, y_test)
+        squared_loss_test = calculate_squared_loss(y_test, dm_test, ot_test)
+        squared_loss_test_scalar = np.asscalar(squared_loss_test)
+        squared_losses_test.append(squared_loss_test_scalar)
+
+    # calculate mean values
+    mean_squared_loss_train = sum(squared_losses_train) / nb_splits
+    mean_squared_loss_test = sum(squared_losses_test) / nb_splits
+
+    return mean_squared_loss_train, mean_squared_loss_test
 
 def plot_dataset(X, Y, btype, xs, degrees, opt_thetas):
 
@@ -55,36 +100,17 @@ def plot_dataset(X, Y, btype, xs, degrees, opt_thetas):
     plt.legend()
     plt.show()
 
-def calculate_squared_error_loss(Y, design_matrix, optimal_theta):
-    return (Y-design_matrix*optimal_theta).T * (Y-design_matrix*optimal_theta)
-
 if __name__ == '__main__':
-    # Generate dataset
+    # generate dataset
     N = 25
     X = np.reshape(np.linspace(0, 0.9, N), (N, 1))
     Y = np.cos(10*X**2) + 0.1*np.sin(100*X)
 
-    # configure values
-    deg = 2
-    btype = 'trigo'
-
-    # design matrices and optimal thetas
-    dm = build_design_matrix(X, deg, btype)
-    ot = find_optimal_parameters(dm, Y) 
-
-    # Q1C, when degree is 0
-    print(calculate_squared_error_loss(Y, dm, ot))
-    
-    loo = LeaveOneOut()
-    nb_splits = loo.get_n_splits(X)
-    print('nb_splits:', nb_splits)
-
-    for train_index, test_index in loo.split(X):
-        print("TRAIN:", train_index, "TEST:", test_index)
-        X_train, X_test = X[train_index], X[test_index]
-        y_train, y_test = Y[train_index], Y[test_index]
-        print('X_train: {}, X_test: {}, y_train: {}, y_test: {}'.format(
-                X_train, X_test, y_train, y_test)
+    # find mean squared loss for train and test set for a given degree K
+    mean_squared_loss_train, mean_squared_loss_test = (
+                find_squared_losses(N, X, Y, degree=1, btype='trigo')
             )
-        break
+
+    # print the result
+    print(mean_squared_loss_train, mean_squared_loss_test)
 
