@@ -20,7 +20,16 @@ def lml(alpha, beta, Phi, Y):
     :param Y: array of shape (N, 1)
     :return: the log marginal likelihood, a scalar
     """
-    pass
+
+    N, M = Phi.shape
+    bI = beta * np.eye(N)
+
+    term = alpha*Phi.dot(Phi.T) + bI
+    term_1 = -0.5 * N * np.log(2*np.pi)
+    term_2 = -0.5 * np.log(np.linalg.det(term))
+    term_3 = -0.5 * Y.T.dot(np.linalg.inv(term)).dot(Y)
+
+    return np.asscalar(term_1 + term_2 + term_3)
 
 def grad_lml(alpha, beta, Phi, Y):
     """
