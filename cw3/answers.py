@@ -42,5 +42,24 @@ def grad_lml(alpha, beta, Phi, Y):
     :return: array of shape (2,). The components of this array are the gradients
     (d_lml_d_alpha, d_lml_d_beta), the gradients of lml with respect to alpha and beta respectively.
     """
-    pass
+    N, M = Phi.shape
+    bI = beta * np.eye(N)
+    f = alpha*Phi.dot(Phi.T) + bI
+    detF = np.linalg.det(f)
+    invF = np.linalg.inv(f)
+
+    dF_da = Phi.dot(Phi.T)
+    dF_db = np.eye(N)
+
+    dlml_da = np.asscalar(
+        float(-0.5*detF*np.trace(invF.dot(dF_da)))/detF +
+        -0.5*Y.T.dot(-invF.dot(dF_da).dot(invF)).dot(Y)
+    )
+
+    dlml_db = np.asscalar(
+        float(-0.5*detF*np.trace(invF.dot(dF_db)))/detF +
+        -0.5*Y.T.dot(-invF.dot(dF_db).dot(invF)).dot(Y)
+    )
+
+    return np.array([dlml_da, dlml_db])
 
