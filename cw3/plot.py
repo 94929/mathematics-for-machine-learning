@@ -2,8 +2,6 @@
 import matplotlib.pyplot as plt
 import numpy as np
 
-from matplotlib.colors import LogNorm
-
 from answers import lml
 from answers import grad_lml
 from prev_answers import poly_func
@@ -23,7 +21,7 @@ def gradient_descent(step, step_size):
     alphas, betas = [], []
 
     # gradient descent algorithm 
-    for i in range(100):
+    for i in range(1000):
 
         alpha, beta = step
         alphas.append(alpha)
@@ -39,16 +37,12 @@ def plot_contour_2d(f, path):
     
     # preparing the configuration values
     # range should begin from non-zero as ln 0 is not defined
-    xmin, xmax, xstep = .1, 3, .1
-    ymin, ymax, ystep = .1, 25, .1
+    xmin, xmax, xstep = .1, 2.5, .1
+    ymin, ymax, ystep = .1, 2.5, .1
     x, y = np.meshgrid(
                 np.arange(xmin, xmax + xstep, xstep), 
                 np.arange(ymin, ymax + ystep, ystep)
             )
-
-    # print x and y
-    print('x:', x)
-    print('y:', y)
 
     # ensure x and y have the same shape
     assert x.shape == y.shape
@@ -65,15 +59,16 @@ def plot_contour_2d(f, path):
     # plotting methods
     fig, ax = plt.subplots(figsize=(10, 6))
 
-    lvls = np.logspace(.1, 3, 50)
-    ax.contour(x, y, z, levels=lvls, norm=LogNorm(), cmap=plt.cm.jet)
+    # the z-value lies between -70 and -25
+    lvls = np.linspace(-70, -25, 100)
+    ax.contour(x, y, z, levels=lvls)
     ax.quiver(path[0,:-1], path[1,:-1], 
             path[0,1:]-path[0,:-1], path[1,1:]-path[1,:-1], 
             scale_units='xy', angles='xy', scale=1, color='k')
-    ax.plot(*maxima, 'r*', markersize=18)
+    ax.plot(*maxima, 'r*', markersize=15)
 
-    ax.set_xlabel('$x$')
-    ax.set_ylabel('$y$')
+    ax.set_xlabel('$alpha$')
+    ax.set_ylabel('$beta$')
     ax.set_xlim((xmin, xmax))
     ax.set_ylim((xmin, xmax))
 
@@ -81,10 +76,11 @@ def plot_contour_2d(f, path):
 
 if __name__ == '__main__':
     # obtain steps (i.e. path) by running the gradient descent algorithm
-    path = gradient_descent(step=np.array([.75, .75]), step_size=.1)
-    print('Path a:', path[0,:])
-    print('Path b:', path[1,:])
+    path = gradient_descent(step=np.array([.35, .35]), step_size=.001)
+    print('maxima a:', path[0,-1])
+    print('maxima b:', path[1,-1])
 
     # plot contour (2d)
     plot_contour_2d(lml, path)
+    
 
