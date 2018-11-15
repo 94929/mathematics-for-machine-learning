@@ -18,7 +18,7 @@ def trig_func(order, X):
         res[:, 2 * i] = np.cos(2 * np.pi * i * X.ravel())
     return res
 
-def gaussian_function(order, X, scale):
+def gaus_func(order, X, scale):
     mean = np.linspace(0, 1, order)
     a = np.ones((X.shape[0], order+1))
     scale_sqaured = 2*scale**2
