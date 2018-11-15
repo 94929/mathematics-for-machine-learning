@@ -18,7 +18,7 @@ def gradient_descent(step, step_size, Phi):
     alphas, betas = [], []
 
     # gradient descent algorithm 
-    for i in range(1000):
+    for i in range(10000):
 
         alpha, beta = step
         alphas.append(alpha)
@@ -32,10 +32,10 @@ def gradient_descent(step, step_size, Phi):
 
 def plot(maximums, orders):
     
-    plt.plot(maximums, orders)
+    plt.plot(orders, maximums)
 
-    plt.xlabel('$max-lml$')
-    plt.ylabel('$order$')
+    plt.xlabel('$order$')
+    plt.ylabel('$max-lml$')
 
     plt.show()
 
@@ -47,7 +47,7 @@ if __name__ == '__main__':
     orders = range(maximum_order+1)
     for order in orders:
         Phi = trig_func(order, X) # init feature matrix
-        path = gradient_descent(np.array([.35, .35]), .001, Phi)
+        path = gradient_descent(np.array([.35, .35]), 1e-5, Phi)
         maxima = (path[0, -1], path[1, -1])
         maximum = lml(maxima[0], maxima[1], Phi, Y)
         maximas.append(maxima)
