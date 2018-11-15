@@ -17,3 +17,11 @@ def trig_func(order, X):
         res[:, 2 * i - 1] = np.sin(2 * np.pi * i * X.ravel())
         res[:, 2 * i] = np.cos(2 * np.pi * i * X.ravel())
     return res
+
+def gaussian_function(order, X, scale):
+    mean = np.linspace(0, 1, order)
+    a = np.ones((X.shape[0], order+1))
+    scale_sqaured = 2*scale**2
+    for i in range(1, order+1):
+        a[:, i] = np.exp(-(X.ravel()-mean[i-1])**2 / scale_sqaured)
+    return a
