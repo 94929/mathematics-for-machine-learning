@@ -30,7 +30,7 @@ for jj = 1:20
     fea_Test = fea1(TestIdx,:);
     gnd_Test = gnd(TestIdx);
 
-    
+    % PCA
     U_reduc = PCA(fea_Train,size(fea_Train,1)-1); 
     
     oldfea = fea_Train*U_reduc;
@@ -52,7 +52,8 @@ for jj = 1:20
         Group = gnd_Train;
         k = 1;
         distance = 'euclidean';
-        Class = knnclassify(Sample, Training , Group, k, distance);
+        knnModel = fitcknn(Training, Group, 'NumNeighbors', k, 'distance', distance);
+        Class = predict(knnModel, Sample);
 
         correct(ii) = length(find(Class-gnd_Test == 0));
     end
@@ -75,3 +76,4 @@ title('PCA, PIE DB');
 ylabel('error rate');
 % rectify ticks on x axis
 set(axis1, 'XTickLabel', {'0','50','100','150','200','250','300','350'});
+
