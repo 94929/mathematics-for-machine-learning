@@ -1,13 +1,18 @@
 % to be completed
 
-% TODO: implement PCA function below so that it can be used in demoPCA.m
-function U_reduc = PCA(train, train_size)
-    % size(train): 340x4096
-    % train_size = 339
+function U_reduc = PCA(trainset, bcc)
+    % trainset: 340x4096 matrix
+    % bias_correction_constant = N-1 = 339
 
-    disp('size of fea_Train')
-    disp(train_size)
+    X = trainset
+    X = bsxfun(@minus, X, mean(X,1));
+    C = (X'*X)./bcc; 
 
-    %U_reduc = -1
+    [V D] = eig(C);
+    [D order] = sort(diag(D), 'descend');
+    V = V(:,order);
+
+    U_reduc_raw = X*V(:,1:end);
+    U_reduc = transpose(U_reduc_raw)
 end
 
