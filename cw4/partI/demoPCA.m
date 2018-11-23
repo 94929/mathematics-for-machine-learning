@@ -31,7 +31,7 @@ for jj = 1:20
     gnd_Test = gnd(TestIdx);
 
     % PCA
-    U_reduc = PCA(fea_Train,size(fea_Train,1)-1); 
+    U_reduc = wPCA(fea_Train,size(fea_Train,1)-1); 
     
     oldfea = fea_Train*U_reduc;
     newfea = fea_Test*U_reduc;
