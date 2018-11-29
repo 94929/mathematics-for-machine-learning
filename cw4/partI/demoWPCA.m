@@ -51,7 +51,8 @@ for jj = 1:20
         Group = gnd_Train;
         k = 1;
         distance = 'cosine';
-        Class = knnclassify(Sample, Training , Group, k, distance);
+        knnModel = fitcknn(Training, Group, 'NumNeighbors', k, 'distance', distance);
+        Class = predict(knnModel, Sample);
 
         correct(ii) = length(find(Class-gnd_Test == 0));
     end
