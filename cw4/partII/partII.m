@@ -37,12 +37,6 @@ function [] = partII()
 
 end
 
-function k = kernel(x_i, x_j, w)
-    %k = exp(-norm(x_i - x_j,2)^2/w);
-    % non-linear space kernel
-    k = x_i'*x_j/w;
-end
-
 function [a, R] = calcRandCentre(data)
 
     n = size(data, 1);
